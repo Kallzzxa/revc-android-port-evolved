@@ -2,8 +2,8 @@ package com.revc.game;
 
 import com.github.junrar.Archive;
 import com.github.junrar.Junrar;
+import com.github.junrar.ContentDescription;
 import com.github.junrar.exception.RarException;
-import com.github.junrar.rarfile.ContentDescription;
 import com.github.junrar.rarfile.FileHeader;
 
 import java.io.File;
