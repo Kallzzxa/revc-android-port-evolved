@@ -79,6 +79,16 @@ public class GameActivity extends SDLActivity {
             return;
         }
 
+        // No game data yet: hand over to the downloader instead of starting
+        // the engine with nothing to load. Same finish-before-onResume
+        // trick as above, so SDLThread never starts. DownloadActivity
+        // comes back here once the data is in place.
+        if (!GameDataDownloader.isGameDataPresent(gameDir)) {
+            startActivity(new Intent(this, DownloadActivity.class));
+            finish();
+            return;
+        }
+
         ensureGameControllerDb(gameDir);
 
         // Draw the game (and our touch controls) behind the camera cutout

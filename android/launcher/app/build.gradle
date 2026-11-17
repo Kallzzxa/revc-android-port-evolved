@@ -11,8 +11,8 @@ android {
         applicationId "com.revc.game"
         minSdk 24
         targetSdk 35
-        versionCode 12
-        versionName "1.0.11"
+        versionCode 13
+        versionName "1.0.12"
 
         ndkVersion '27.2.12479018'
 
@@ -27,6 +27,10 @@ android {
         // codepdbh/revc-long-night-experimental-port. TouchControlsView.java
         // is shared source between the two, gated on this flag.
         buildConfigField "boolean", "IS_LONG_NIGHT_EDITION", "false"
+
+        // GameActivity reads this; e1229d0 introduced the reference without
+        // defining the field, which broke the build.
+        buildConfigField "String", "GAME_FOLDER_NAME", "\"reVC\""
     }
 
     buildTypes {
@@ -113,6 +117,9 @@ dependencies {
     implementation libs.appcompat
     implementation libs.material
     implementation libs.constraintlayout
+
+    // Pure-Java RAR extractor (RAR up to v7) for the in-game data download.
+    implementation "com.github.junrar:junrar:8.1.2"
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

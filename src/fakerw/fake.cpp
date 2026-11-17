@@ -604,8 +604,16 @@ RwVideoMode *RwEngineGetVideoModeInfo(RwVideoMode *modeinfo, RwInt32 modeIndex)
 	{ return Engine::getVideoModeInfo(modeinfo, modeIndex); }
 RwInt32 RwEngineGetCurrentVideoMode(void) { return Engine::getCurrentVideoMode(); }
 RwBool RwEngineSetVideoMode(RwInt32 modeIndex) { return Engine::setVideoMode(modeIndex); }
-RwInt32 RwEngineGetRenderScale(void) { return Engine::getRenderScale(); }
-RwBool RwEngineSetRenderScale(RwInt32 percent) { return Engine::setRenderScale(percent); }
+// Render scale is not implemented in the vendored librw (mrxenginner/librw
+// has no Engine::get/setRenderScale, and upstream never had it): keep the
+// setting in memory so these wrappers link and stay consistent. Nothing
+// calls them today -- the UI for it is disabled upstream
+// (TouchControlsView.RENDER_SCALE_UI_ENABLED == false) and no game code
+// references them. If librw ever gains real render scaling, wire these
+// back to Engine::get/setRenderScale.
+static RwInt32 renderScalePercent = 100;
+RwInt32 RwEngineGetRenderScale(void) { return renderScalePercent; }
+RwBool RwEngineSetRenderScale(RwInt32 percent) { renderScalePercent = percent; return true; }
 RwInt32 RwEngineGetTextureMemorySize(void);
 RwInt32 RwEngineGetMaxTextureSize(void);
 
