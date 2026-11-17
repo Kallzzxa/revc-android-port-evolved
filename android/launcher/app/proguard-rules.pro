@@ -128,6 +128,15 @@
  -dontwarn com.revc.game.MainActivity*
  -keep class com.revc.game.MainActivity { *; }
 
+ # Loading overlay (GameActivity): called from native code via JNI
+ # GetMethodID (CJavaWrapper), so R8 must not rename them -- otherwise
+ # the overlay never updates its progress text and never hides on
+ # release builds (it would cover the menu forever).
+ -keepclassmembers class com.revc.game.GameActivity {
+     void setLoadingText(java.lang.String);
+     void hideLoading();
+ }
+
  -dontwarn androidx.**
  -keep class androidx.** { *; }
 
