@@ -86,6 +86,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".DownloadActivity"
+            android:exported="false"
+            android:screenOrientation="sensorLandscape" />
+
+        <activity
             android:name=".GameActivity"
             android:alwaysRetainTaskState="true"
             android:launchMode="singleInstance"

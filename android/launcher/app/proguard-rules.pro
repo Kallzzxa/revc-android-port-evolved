@@ -30,6 +30,13 @@
  -optimizationpasses 5
  -allowaccessmodification
 
+# junrar (in-game data download): keep the extractor whole in release builds,
+# and keep slf4j's API (junrar logs through it; no binding ships, NOP is fine).
+-dontwarn com.github.junrar.**
+-keep class com.github.junrar.** { *; }
+-dontwarn org.slf4j.**
+-keep class org.slf4j.** { *; }
+
 # Specify the package name to apply string encryption
  -keeppackagenames com.revc.game
 

@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">reVC</string>
+
+    <string name="download_title">Download data game</string>
+    <string name="download_intro">reVC butuh data GTA Vice City (PC) untuk jalan. File 1,19 GB, di-download sekali, lalu diekstrak otomatis ke folder reVC.</string>
+    <string name="download_wifi_note">Disarankan pakai WiFi — file 1,19 GB dan butuh ruang kosong ±3 GB selama download + ekstrak.</string>
+    <string name="download_button">Download data (1,19 GB)</string>
+    <string name="download_resume_button">Lanjutkan download</string>
+    <string name="download_extract_button">Ekstrak data</string>
+    <string name="download_cancel_button">Batal</string>
+    <string name="download_play_button">Mainkan</string>
+    <string name="download_downloading">Mengunduh…</string>
+    <string name="download_extracting">Mengekstrak…</string>
+    <string name="download_done">Data game siap!</string>
+    <string name="download_cancelled">Download dibatalkan. Bisa dilanjutkan nanti.</string>
+    <string name="download_no_space">Ruang kosong kurang. Butuh ±3 GB, tersedia %1$s.</string>
+    <string name="download_error">Gagal: %1$s</string>
+    <string name="download_verify_failed">Ekstrak selesai tapi data game tidak ditemukan. Coba lagi.</string>
 </resources>
