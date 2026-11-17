@@ -47,6 +47,48 @@ void CJavaWrapper::ExitGame() {
     env->CallVoidMethod(this->activity, this->s_ExitGame);
 }
 
+void CJavaWrapper::SetLoadingText(const char* text)
+{
+    JNIEnv* env = GetEnv();
+
+    if (!env || !s_SetLoadingText) {
+        return;
+    }
+
+    jstring jtext = env->NewStringUTF(text);
+    if (!jtext) {
+        return;
+    }
+
+    env->CallVoidMethod(this->activity, this->s_SetLoadingText, jtext);
+    env->DeleteLocalRef(jtext);
+    EXCEPTION_CHECK(env);
+}
+
+void CJavaWrapper::HideLoading()
+{
+    JNIEnv* env = GetEnv();
+
+    if (!env || !s_HideLoading) {
+        return;
+    }
+
+    env->CallVoidMethod(this->activity, this->s_HideLoading);
+    EXCEPTION_CHECK(env);
+}
+
+void AndroidLoadingSetText(const char* text)
+{
+    if (g_pJavaWrapper)
+        g_pJavaWrapper->SetLoadingText(text);
+}
+
+void AndroidLoadingHide()
+{
+    if (g_pJavaWrapper)
+        g_pJavaWrapper->HideLoading();
+}
+
 CJavaWrapper::CJavaWrapper(JNIEnv *env, jobject activity) {
     this->activity = env->NewGlobalRef(activity);
 
@@ -58,6 +100,8 @@ CJavaWrapper::CJavaWrapper(JNIEnv *env, jobject activity) {
     }
 
     s_ExitGame = env->GetMethodID(nvEventClass, "exitGame", "()V");
+    s_SetLoadingText = env->GetMethodID(nvEventClass, "setLoadingText", "(Ljava/lang/String;)V");
+    s_HideLoading = env->GetMethodID(nvEventClass, "hideLoading", "()V");
     env->DeleteLocalRef(nvEventClass);
     env->DeleteLocalRef(activity);
 }

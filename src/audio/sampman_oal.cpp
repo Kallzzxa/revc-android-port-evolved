@@ -2,6 +2,7 @@
 
 #ifdef AUDIO_OAL
 #include <time.h>
+#include <stdio.h> // snprintf (Android loading overlay progress)
 
 #include "eax.h"
 #include "eax-util.h"
@@ -49,6 +50,13 @@
 #include "Timer.h"
 #ifdef AUDIO_OAL_USE_OPUS
 #include <opusfile.h>
+#endif
+
+#if defined ANDROID
+// Loading overlay (src/skel/android/JavaWrapper.cpp). The first-run
+// audio cache scan below opens 1224 streams on the main thread, which
+// looks like a hang on a black screen -- report progress instead.
+void AndroidLoadingSetText(const char* text);
 #endif
 
 //TODO: fix eax3 reverb
@@ -942,6 +950,15 @@ cSampleManager::Initialise(void)
 				nStreamLength[i] = tatalms;
 			} else
 				USERERROR("Can't open '%s'\n", StreamedNameTable[i]);
+#if defined ANDROID
+			// Show scan progress on the loading overlay (every 32nd
+			// stream -- a JNI call per file would be wasteful).
+			if ((i & 31) == 0) {
+				char buf[64];
+				snprintf(buf, sizeof(buf), "Sedang membaca file audio... %d / %d", i + 1, TOTAL_STREAMED_SOUNDS);
+				AndroidLoadingSetText(buf);
+			}
+#endif
 		}
 #ifdef AUDIO_CACHE
 		cacheFile = fcaseopen("audio\\sound.cache", "wb");
@@ -952,6 +969,11 @@ cSampleManager::Initialise(void)
 		} else {
 			debug("Cannot save audio cache\n");
 		}
+#if defined ANDROID
+		// Cache built -- the next slow step is the sample banks, so
+		// leave the overlay on the generic loading text until the menu.
+		AndroidLoadingSetText("Sedang memuat game...");
+#endif
 	}
 #endif
 

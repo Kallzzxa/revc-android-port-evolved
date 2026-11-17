@@ -10,8 +10,14 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -47,6 +53,14 @@ public class GameActivity extends SDLActivity {
     public static final String GAME_FOLDER_NAME = BuildConfig.GAME_FOLDER_NAME;
 
     private static final int REQUEST_LEGACY_STORAGE_PERMISSION = 1001;
+
+    // Loading overlay: shown from activity start until the game menu
+    // appears. The engine start-up (first-run audio cache scan in
+    // particular) runs on the native thread with a black screen, so
+    // without this the game looks hung for minutes. Updated from
+    // native code via CJavaWrapper (setLoadingText / hideLoading).
+    private View loadingOverlay;
+    private TextView loadingText;
 
     public static File getGameDir() {
         return new File(Environment.getExternalStorageDirectory(), GAME_FOLDER_NAME);
@@ -106,6 +120,69 @@ public class GameActivity extends SDLActivity {
         // native methods resolve fine without a separate System.loadLibrary.
         mLayout.addView(new TouchControlsView(this),
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // Loading overlay on top of everything (added last, so it draws
+        // above the game surface and the touch controls) until the menu
+        // shows. Native code hides it via hideLoading().
+        showLoadingOverlay();
+    }
+
+    /**
+     * Full-screen black overlay with a spinner and a status line, shown
+     * while the engine starts. Built in code (no layout XML) so the
+     * launcher stays a single file.
+     */
+    private void showLoadingOverlay() {
+        FrameLayout overlay = new FrameLayout(this);
+        overlay.setBackgroundColor(0xFF000000);
+
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setGravity(Gravity.CENTER);
+
+        ProgressBar spinner = new ProgressBar(this);
+        LinearLayout.LayoutParams spinnerLp =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+        spinnerLp.gravity = Gravity.CENTER;
+        spinnerLp.bottomMargin = 32;
+        box.addView(spinner, spinnerLp);
+
+        TextView text = new TextView(this);
+        text.setText("Sedang memuat game...");
+        text.setTextColor(0xFFFFFFFF);
+        text.setTextSize(18);
+        text.setGravity(Gravity.CENTER);
+        box.addView(text,
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        overlay.addView(box,
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT));
+        mLayout.addView(overlay,
+                new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+        loadingOverlay = overlay;
+        loadingText = text;
+    }
+
+    /** Called from native code (CJavaWrapper) to update the status line. */
+    public void setLoadingText(String text) {
+        runOnUiThread(() -> {
+            if (loadingText != null) loadingText.setText(text);
+        });
+    }
+
+    /** Called from native code (CJavaWrapper) once the menu is showing. */
+    public void hideLoading() {
+        runOnUiThread(() -> {
+            if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
+        });
     }
 
     @Override

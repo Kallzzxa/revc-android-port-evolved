@@ -1674,6 +1674,15 @@ main(int argc, char *argv[])
 
                     case GS_FRONTEND:
                     {
+#if defined ANDROID
+                        // First frame of the menu: the game is rendering
+                        // again, so the loading overlay can go away.
+                        static bool loadingHidden = false;
+                        if (!loadingHidden) {
+                            loadingHidden = true;
+                            AndroidLoadingHide();
+                        }
+#endif
                         if(!WindowIconified)
                             RsEventHandler(rsFRONTENDIDLE, nil);
 
