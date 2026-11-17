@@ -1260,6 +1260,13 @@ void re3_assert(const char *expr, const char *filename, unsigned int lineno, con
 }
 #endif
 
+#if defined ANDROID
+// File logger (skel/android/logger/log.cpp). Forward-declared here so
+// every debug() line is mirrored to log.txt on the device; its header
+// lives outside re3.cpp's include path.
+namespace Logger { void Log(const char* fmt, ...); }
+#endif
+
 void re3_debug(const char *format, ...)
 {
 #ifndef MASTER
@@ -1273,6 +1280,10 @@ void re3_debug(const char *format, ...)
 	va_end(va);
 #if defined ANDROID
     __android_log_print(ANDROID_LOG_DEBUG, "reVC-DEBUG", re3_buff);
+    // Mirror to the file logger: logcat is not reachable from the
+    // phone's file manager, and the file was previously never written
+    // (debug() never called Logger::Log at all).
+    Logger::Log("%s", re3_buff);
 #endif
 	printf("%s", re3_buff);
 	CDebug::DebugAddText(re3_buff);
